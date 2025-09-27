@@ -1,0 +1,131 @@
+.results-container {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 22px;
+}
+
+.results-title {
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.result-card {
+  background-color: #ffffff;
+  padding: 1.2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
+}
+
+.result-card:hover {
+  transform: translateY(-2px);
+}
+
+.card-title {
+  color: #7f8c8d;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+
+.words-stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.correct-count {
+  color: #27ae60;
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+
+.incorrect-count {
+  color: #e74c3c;
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+
+.accuracy-value {
+  color: #3498db;
+  font-weight: bold;
+  font-size: 1.5rem;
+  margin-bottom: 0.3rem;
+}
+
+.keystroke-accuracy {
+  color: #9b59b6;
+  font-weight: bold;
+  font-size: 1.3rem;
+  margin-top: 0.5rem;
+}
+
+.wpm-value {
+  color: #f39c12;
+  font-weight: bold;
+  font-size: 1.8rem;
+  margin: 0.5rem 0;
+}
+
+.keystrokes-info {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.keystroke-total {
+  color: #2c3e50;
+  font-weight: bold;
+}
+
+.keystroke-correct {
+  color: #27ae60;
+}
+
+.keystroke-incorrect {
+  color: #e74c3c;
+}
+
+.restart-button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  font-weight: 600;
+  margin-top: 1rem;
+}
+
+.restart-button:hover {
+  background-color: #2980b9;
+  transform: scale(1.02);
+}
+
+.restart-button:active {
+  transform: scale(0.98);
+}
+
+.subtitle {
+  color: #7f8c8d;
+  font-size: 0.9rem;
+  margin-top: 0.2rem;
+}
