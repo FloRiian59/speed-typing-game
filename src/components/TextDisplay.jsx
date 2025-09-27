@@ -2,63 +2,63 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import textData from "../data/textData.json";
 import "../css/textDisplay.css";
 
+// Fonction pour mélanger aléatoirement un tableau
 function shuffleArray(array) {
   const newArray = [...array];
   for (let i = newArray.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+    [newArray[i], newArray[j]] = [newArray[j], newArray[i]]; // Échange les éléments
   }
   return newArray;
 }
 
 function TextDisplay({
-  difficulty,
-  reloadSignal,
-  activeWordIndex,
-  results,
-  setShuffledWords,
-  currentInput,
+  difficulty, // Niveau de difficulté
+  reloadSignal, // Signal pour recharger les mots
+  activeWordIndex, // Index du mot actif
+  results, // Résultats des mots validés
+  setShuffledWords, // Fonction pour mettre à jour la liste des mots
+  currentInput, // Texte actuellement saisi
 }) {
+  // Liste locale des mots à afficher
   const [localWords, setLocalWords] = useState([]);
-  const [lineMap, setLineMap] = useState([]); // index mot -> numéro de ligne
-  const [lineTops, setLineTops] = useState([]); // top (px) de chaque ligne
+  // Tableau pour mapper chaque mot à sa ligne
+  const [lineMap, setLineMap] = useState([]);
+  // Positions verticales des lignes
+  const [lineTops, setLineTops] = useState([]);
+  // Ligne actuellement active
   const [currentLine, setCurrentLine] = useState(0);
-
+  // Référence au conteneur DOM pour mesurer les positions
   const containerRef = useRef(null);
-  const wordRefs = useRef([]); // refs to each <li>
+  // Références aux éléments DOM des mots
+  const wordRefs = useRef([]);
 
-  // Génération des mots
+  // Charge les mots en fonction de la difficulté et les mélange
   useEffect(() => {
     const words = textData.words[difficulty] || [];
-    const shuffled = shuffleArray(words).slice(0, 50);
+    const shuffled = shuffleArray(words).slice(0, 50); // Prend les 50 premiers mots après mélange
     setLocalWords(shuffled);
     if (typeof setShuffledWords === "function") setShuffledWords(shuffled);
     setCurrentLine(0);
     setLineMap([]);
     setLineTops([]);
-    // reset refs
     wordRefs.current = [];
   }, [difficulty, reloadSignal, setShuffledWords]);
 
-  // Fonction de mesure (groupement en lignes)
+  // Mesure les positions des mots pour déterminer les lignes
   const measureLines = useCallback(() => {
     const refs = wordRefs.current;
     if (!refs || refs.length === 0) return;
-
-    // Récupère offsetTop (position dans le flux, indépendant des transforms visuels)
     const positions = refs.map((el) => (el ? el.offsetTop : 0));
-
     const map = [];
     const tops = [];
     let currentLineIndex = 0;
-
     for (let i = 0; i < positions.length; i++) {
       if (i === 0) {
         map.push(0);
         tops[0] = positions[0];
       } else {
-        // Si top diffère suffisamment du précédent -> nouvelle ligne
-        // seuil = 6px pour éviter micro-variations
+        // Si le mot est sur une nouvelle ligne (décalage vertical > 6px)
         if (Math.abs(positions[i] - positions[i - 1]) > 6) {
           currentLineIndex++;
           tops[currentLineIndex] = positions[i];
@@ -66,45 +66,41 @@ function TextDisplay({
         map.push(currentLineIndex);
       }
     }
-
     setLineMap(map);
     setLineTops(tops);
   }, []);
 
-  // Mesure après que les mots soient rendus
+  // Mesure les lignes après le rendu des mots
   useEffect(() => {
-    // Mesurer au prochain frame pour être sûr que les refs sont bien montées
     const id = requestAnimationFrame(() => {
       measureLines();
     });
     return () => cancelAnimationFrame(id);
   }, [localWords, measureLines, containerRef]);
 
-  // Re-mesure aussi sur resize (responsive)
+  // Réajuste les lignes en cas de redimensionnement de la fenêtre
   useEffect(() => {
     const onResize = () => {
-      // faire la mesure après que le layout se stabilise
       requestAnimationFrame(measureLines);
     };
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, [measureLines]);
 
-  // Lorsque activeWordIndex change, avance la ligne si besoin
+  // Fait défiler automatiquement pour garder le mot actif visible
   useEffect(() => {
     if (!lineMap || lineMap.length === 0) return;
     const targetLine = lineMap[activeWordIndex] ?? 0;
     if (targetLine > currentLine) {
       setCurrentLine(targetLine);
     }
-    // Si on recule (rare), on peut aussi gérer le retour :
     if (targetLine < currentLine) {
       setCurrentLine(targetLine);
     }
   }, [activeWordIndex, lineMap, currentLine]);
 
-  // Calcul de la translation en px (utiliser lineTops réels)
-  const OFFSET_PX = -4; // petit offset pour cacher le bas de la ligne précédente
+  // Détermine le décalage vertical pour le défilement
+  const OFFSET_PX = -4;
   let translatePx = 0;
   if (lineTops && lineTops.length > 0) {
     const base = lineTops[0] || 0;
@@ -118,33 +114,35 @@ function TextDisplay({
       aria-live="polite"
       ref={containerRef}
       style={{
-        overflow: "hidden",
+        overflow: "hidden", // Cache le contenu qui dépasse
       }}
     >
       <ul
         className="word-list"
         style={{
-          transform: `translateY(-${translatePx}px)`,
-          transition: "transform 200ms ease",
+          transform: `translateY(-${translatePx}px)`, // Décale verticalement pour le défilement
+          transition: "transform 200ms ease", // Animation fluide
         }}
       >
         {localWords.map((word, index) => {
           let className = "";
+          // Met en surbrillance le mot actif
           if (index === activeWordIndex) {
             className = "active-word";
+            // Si le début du mot saisi ne correspond pas, marque comme erreur
             if (currentInput && !word.startsWith(currentInput)) {
               className = "wrong-typing";
             }
           }
+          // Applique un style en fonction du résultat (correct ou incorrect)
           if (results && results[index] === "correct")
             className = "correct-word";
           if (results && results[index] === "incorrect")
             className = "incorrect-word";
-
           return (
             <li
               key={index}
-              ref={(el) => (wordRefs.current[index] = el)}
+              ref={(el) => (wordRefs.current[index] = el)} // Stocke la référence DOM du mot
               className={className}
             >
               {word}

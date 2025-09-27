@@ -1,12 +1,13 @@
 import "../css/results.css";
+
 function Results({
-  correctWords,
-  incorrectWords,
-  accuracyWords,
-  accuracyKeystrokes,
-  wpm,
-  keystrokes,
-  onRestart,
+  correctWords, // Nombre de mots corrects
+  incorrectWords, // Nombre de mots incorrects
+  accuracyWords, // Précision en pourcentage (mots)
+  accuracyKeystrokes, // Précision en pourcentage (frappes)
+  wpm, // Vitesse en mots par minute
+  keystrokes, // Statistiques des frappes
+  onRestart, // Fonction pour recommencer le test
 }) {
   return (
     <div className="results-container">
